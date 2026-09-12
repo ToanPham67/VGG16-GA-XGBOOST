@@ -7,7 +7,7 @@
 
 | The proposed model
 | :---: 
-| ![The flowchart of the proposed model](GV-trainMRI.png)
+| ![The flowchart of the proposed model](proposedframework.png)
 
 ---
 ## 1. VGG16 Image Feature Extraction Pipeline
