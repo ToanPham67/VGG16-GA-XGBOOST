@@ -348,6 +348,8 @@ plt.show()
 3. **Run Cell 3: XGBoost with K-Fold Cross-Validation**:
   - Train and Evaluate XGBoost Model using GA-Selected Features.
   - The code below applies the optimal feature set (best_individual) identified by the Genetic Algorithm to train an XGBoost classifier, then outputs the overall test accuracy, learning curves (Log Loss), and Confusion Matrix.
+---
+**01 repeated 5-fold cross-validation**
 ```python
 import time
 import matplotlib.pyplot as plt
@@ -412,8 +414,71 @@ print("\nClassification Report:")
 print(classification_report(y_test_labels, y_pred))
 print(f" Total Time: {time.time() - st:.2f} seconds")
 ```
+---
+**30 repeated 5-fold cross-validation**
+```python
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.model_selection import RepeatedStratifiedKFold
+from xgboost import XGBClassifier
+st = time.time()
+# --------- Step 1: Feature Selection via GA ---------
+X_selected = xtrain_features[:, best_individual]
+y_labels = y_train_labels
+# --------- Step 2: Configure 30-Repeated 5-Fold Cross-Validation ---------
+rskf = RepeatedStratifiedKFold(n_splits=5, n_repeats=30, random_state=42)
+accuracies = []
+oof_y_true = []
+oof_y_pred = []
+print("Running 30x5-Fold Cross-Validation...")
+for fold, (train_idx, val_idx) in enumerate(rskf.split(X_selected, y_labels)):
+    X_tr, X_val = X_selected[train_idx], X_selected[val_idx]
+    y_tr, y_val = y_labels[train_idx], y_labels[val_idx]
+    clf = XGBClassifier(
+        objective="multi:softprob",
+        eval_metric="mlogloss",
+        tree_method="hist",
+        device="cuda",
+        verbosity=0,
+        random_state=42,)
+    clf.fit(X_tr, y_tr, verbose=False)
+    y_pred = clf.predict(X_val)
+    acc = accuracy_score(y_val, y_pred)
+    accuracies.append(acc)
+    
+    oof_y_true.extend(y_val)
+    oof_y_pred.extend(y_pred)
+# --------- Step 3: Print CV Results ---------
+mean_acc = np.mean(accuracies)
+std_acc = np.std(accuracies)
+print(f"\nMean CV Accuracy: {mean_acc:.4f} +/- {std_acc:.4f}")
+# --------- Step 4: Aggregate Confusion Matrix ---------
+cm = confusion_matrix(oof_y_true, oof_y_pred)
+classes = np.unique(y_labels)
 
-
+plt.figure(figsize=(6, 5))
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    cmap="Blues",
+    xticklabels=classes,
+    yticklabels=classes,)
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.title("Aggregated Confusion Matrix (30x5-Fold CV)")
+plt.tight_layout()
+plt.savefig("CM_MRIEX2_30x5Fold.png", dpi=300, bbox_inches="tight")
+plt.show()
+# --------- Step 5: Classification Report ---------
+print("\nOverall Classification Report (Cross-Validation):")
+print(classification_report(oof_y_true, oof_y_pred))
+print(f"Total Time: {time.time() - st:.2f} seconds")
+```
+---
 ###  Case 2: Fast Experimentation via Feature Cache
 Skip the time-consuming VGG16 extraction phase by re-loading pre-calculated feature tensors directly into memory.
 
