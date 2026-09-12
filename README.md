@@ -517,4 +517,246 @@ You can configure the evaluation strategy inside **Cell** by setting the `USE_KF
 USE_KFOLD = 5  # Set to True to enable 5-Fold Stratified CV
 ```
 ---
+**Continue with the other machine learning models.**
+- **Random Forest**
+```python
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+st = time.time()
+# 1. Feature Selection
+X_tr, X_te = xtrain_features[:, best_individual], xtest_features[:, best_individual]
+# 2. Train Model
+clf = RandomForestClassifier(n_estimators=300, random_state=42, n_jobs=-1)
+clf.fit(X_tr, y_train_labels)
+# 3. Predict & Evaluate
+y_pred = clf.predict(X_te)
+print(f"Test Accuracy: {accuracy_score(y_test_labels, y_pred):.4f}\n")
+print("Classification Report:\n", classification_report(y_test_labels, y_pred))
+# 4. Plot Confusion Matrix
+classes = np.unique(y_test_labels)
+plt.figure(figsize=(6, 5))
+sns.heatmap(confusion_matrix(y_test_labels, y_pred), annot=True, fmt="d", cmap="Blues",
+            xticklabels=classes, yticklabels=classes)
+plt.title("Confusion Matrix (RF + GA Features)")
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.tight_layout()
+plt.savefig("CM_RF.png", dpi=300)
+plt.show()
+print(f"Total Time: {time.time() - st:.2f}s")
+```
+- **SVM**
+```python
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+st = time.time()
+# 1. Feature Selection
+X_tr, X_te = xtrain_features[:, best_individual], xtest_features[:, best_individual]
+# 2. Train SVM Pipeline
+clf = Pipeline([
+    ("scaler", StandardScaler()),
+    ("svm", SVC(kernel="rbf", C=10.0, gamma="scale", random_state=42))])
+clf.fit(X_tr, y_train_labels)
+# 3. Predict & Evaluate
+y_pred = clf.predict(X_te)
+print(f"Test Accuracy: {accuracy_score(y_test_labels, y_pred):.4f}\n")
+print("Classification Report:\n", classification_report(y_test_labels, y_pred))
+# 4. Plot Confusion Matrix
+classes = np.unique(y_test_labels)
+plt.figure(figsize=(6, 5))
+sns.heatmap(confusion_matrix(y_test_labels, y_pred), annot=True, fmt="d", cmap="Blues",
+            xticklabels=classes, yticklabels=classes)
+plt.title("Confusion Matrix (SVM + GA Features)")
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.tight_layout()
+plt.savefig("CM_SVM.png", dpi=300)
+plt.show()
+print(f"Total Time: {time.time() - st:.2f}s")
+```
+
+- **Decision Tree**
+```python
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.tree import DecisionTreeClassifier
+st = time.time()
+X_tr, X_te = xtrain_features[:, best_individual], xtest_features[:, best_individual]
+clf = DecisionTreeClassifier(criterion="gini", random_state=42)
+clf.fit(X_tr, y_train_labels)
+y_pred = clf.predict(X_te)
+print(f"Test Accuracy: {accuracy_score(y_test_labels, y_pred):.4f}\n")
+print("Classification Report:\n", classification_report(y_test_labels, y_pred))
+classes = np.unique(y_test_labels)
+plt.figure(figsize=(6, 5))
+sns.heatmap(confusion_matrix(y_test_labels, y_pred), annot=True, fmt="d", cmap="Blues", xticklabels=classes, yticklabels=classes)
+plt.title("Confusion Matrix (DT + GA Features)")
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.tight_layout()
+plt.savefig("CM_DT.png", dpi=300)
+plt.show()
+print(f"Total Time: {time.time() - st:.2f}s")
+```
+
+- **Naive Bayes**
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import time
+
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+st = time.time()
+X_train_selected = features_train[:, best_individual]
+X_test_selected  = features_test[:, best_individual]
+# --------- (Gaussian) ---------
+clf = GaussianNB()
+clf.fit(X_train_selected, y_train)
+y_pred = clf.predict(X_test_selected)
+test_accuracy = accuracy_score(y_test, y_pred)
+print(f"Test accuracy using selected features (GaussianNB): {test_accuracy:.4f}")
+# --------- Confusion Matrix ---------
+cm = confusion_matrix(y_test, y_pred)
+classes = np.unique(y_test)
+plt.figure(figsize=(6,5))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+            xticklabels=classes, yticklabels=classes)
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.title("Confusion Matrix (GaussianNB with GA features)")
+plt.savefig("CM_GNB.png")
+plt.show()
+# --------- Classification Report ---------
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+end = time.time()
+print("Total Time:", end - st)
+```
+- **Adaboost**
+```python
+import time
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.tree import DecisionTreeClassifier
+st = time.time()
+X_tr, X_te = xtrain_features[:, best_individual], xtest_features[:, best_individual]
+clf = AdaBoostClassifier(estimator=DecisionTreeClassifier(max_depth=1, random_state=42), n_estimators=300, learning_rate=0.5, random_state=42)
+clf.fit(X_tr, y_train_labels)
+y_pred = clf.predict(X_te)
+print(f"Test Accuracy: {accuracy_score(y_test_labels, y_pred):.4f}\n")
+print("Classification Report:\n", classification_report(y_test_labels, y_pred))
+train_err = [1 - accuracy_score(y_train_labels, yh) for yh in clf.staged_predict(X_tr)]
+test_err = [1 - accuracy_score(y_test_labels, yh) for yh in clf.staged_predict(X_te)]
+plt.figure(figsize=(7, 5))
+plt.plot(range(1, len(train_err) + 1), train_err, label="Train Error")
+plt.plot(range(1, len(test_err) + 1), test_err, label="Test Error")
+plt.xlabel("Number of Estimators")
+plt.ylabel("Error Rate")
+plt.title("AdaBoost Error over Estimators")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("AdaBoost_error.png", dpi=300)
+plt.show()
+classes = np.unique(y_test_labels)
+plt.figure(figsize=(6, 5))
+sns.heatmap(confusion_matrix(y_test_labels, y_pred), annot=True, fmt="d", cmap="Blues", xticklabels=classes, yticklabels=classes)
+plt.title("Confusion Matrix (AdaBoost + GA Features)")
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.tight_layout()
+plt.savefig("CM_AdaBoost.png", dpi=300)
+plt.show()
+print(f"Total Time: {time.time() - st:.2f}s")
+```
+
+- **ANN**
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import time
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+st = time.time()
+X_train_selected = features_train[:, best_individual]
+X_test_selected  = features_test[:, best_individual]
+# early_stopping=True sẽ tự tách 1 phần train làm validation và dừng sớm khi không cải thiện
+clf = Pipeline([
+    ("scaler", StandardScaler()),
+    ("mlp", MLPClassifier(
+        hidden_layer_sizes=(256, 128),   # bạn có thể đổi (128,), (256,128,64)...
+        activation="relu",
+        solver="adam",
+        alpha=1e-4,                      # L2 regularization
+        batch_size=128,
+        learning_rate_init=1e-3,
+        max_iter=200,                    # số epoch tối đa
+        early_stopping=True,
+        validation_fraction=0.1,
+        n_iter_no_change=15,
+        random_state=42,
+        verbose=False
+    ))
+])
+clf.fit(X_train_selected, y_train)
+y_pred = clf.predict(X_test_selected)
+test_accuracy = accuracy_score(y_test, y_pred)
+print(f"Test accuracy using selected features (ANN-MLP): {test_accuracy:.4f}")
+# -------- Plot loss curve (epoch) ---------
+mlp = clf.named_steps["mlp"]
+loss_curve = getattr(mlp, "loss_curve_", None)
+if loss_curve is not None and len(loss_curve) > 0:
+    x_axis = range(1, len(loss_curve) + 1)
+    plt.figure(figsize=(7,5))
+    plt.plot(x_axis, loss_curve, label="Train loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("ANN (MLP) Training Loss over Epochs")
+    plt.grid(True)
+    plt.legend()
+    plt.savefig("ANN_loss.png")
+    plt.show()
+else:
+    print("No loss_curve_ found (sklearn version/config).")
+# --------- Confusion Matrix ---------
+cm = confusion_matrix(y_test, y_pred)
+classes = np.unique(y_test)
+plt.figure(figsize=(6,5))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+            xticklabels=classes, yticklabels=classes)
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.title("Confusion Matrix (ANN-MLP with GA features)")
+plt.savefig("CM_ANN.png")
+plt.show()
+# --------- Classification Report ---------
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+end = time.time()
+print("Total Time:", end - st)
+```
+
+
+
 
