@@ -4,8 +4,6 @@
 
 This repository contains an end-to-end Python pipeline for extracting deep feature representations from medical image datasets (e.g., LC25000) using a pretrained **VGG16 Convolutional Base** combined with **Global Average Pooling (GAP)**.
 
----
-
 ##  Pipeline Overview
 
 1. **Dataset Ingestion:** Automatically scans directory structures, maps target classes, and indexes image file paths.
@@ -15,8 +13,6 @@ This repository contains an end-to-end Python pipeline for extracting deep featu
    * Applies `AdaptiveAvgPool2d` to collapse spatial dimensions into a compact $512$-dimensional feature vector per image.
 4. **Fault Tolerance:** Catches unreadable or corrupted images during loading without interrupting the batch execution flow.
 5. **Persistence:** Exports extracted features, encoded labels, and valid image paths to disk in NumPy format (`.npy`).
-
----
 
 ##  Requirements & Installation
 
@@ -29,7 +25,15 @@ Install dependencies via `pip`:
 pip install torch torchvision numpy pillow opencv-python tqdm
 ```
 ---
-
+```text
+.
+├── train_features/             # Extracted training features (.npy, .txt)
+├── test_features/              # Extracted testing features (.npy, .txt)
+├── GA_convergence_curve_MRI.png # GA Convergence Plot
+├── GA_selected_features_MRI.png # Number of Selected Features Plot
+├── main.py                     # Main execution script
+└── README.md                   # Project documentation
+```
 
 
 
