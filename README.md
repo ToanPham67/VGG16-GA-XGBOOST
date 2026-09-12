@@ -27,9 +27,13 @@ This repository contains an end-to-end Python pipeline for extracting deep featu
 ##  Requirements & Installation
 
 - [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-- **Hardware:** CUDA-compatible GPU recommended for optimal extraction speed.
+  [![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+  [![Kaggle](https://img.shields.io/badge/Kaggle-GPU%20Supported-blue.svg)](https://www.kaggle.com/)
+  [![Colab](https://img.shields.io/badge/Google%20Colab-GPU%20Supported-orange.svg)](https://colab.research.google.com/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+- **Hardware:** CUDA-compatible GPU recommended for optimal extraction and training speed.
+- **Cloud Environments:** Ready to run out-of-the-box on **Google Colab** (T4 GPU) or **Kaggle Notebooks** (P100 / T4 x2 GPU). Ensure GPU acceleration is enabled in your session runtime settings.
 
 Install dependencies via `pip`:
 
